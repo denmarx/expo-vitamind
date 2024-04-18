@@ -4,28 +4,29 @@ import SunPosition from './components/SunPosition';
 import { useSunPositionCalculator } from './functions/sunPositionCalculator';
 import { Dimensions } from 'react-native';
 import Constants from 'expo-constants';
+import AltitudeScale from './components/AltitudeScale';
 import * as Notifications from 'expo-notifications';
 import { useEffect } from 'react';
 
 export default function App() {
-  useEffect(() => {
-    registerForPushNotificationsAsync();
-  }, []);
+  // useEffect(() => {
+  //   registerForPushNotificationsAsync();
+  // }, []);
 
-  const registerForPushNotificationsAsync = async () => {
-    try {
-      const { status } = await Notifications.getPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to receive notifications was denied');
-        return;
-      }
+  // const registerForPushNotificationsAsync = async () => {
+  //   try {
+  //     const { status } = await Notifications.getPermissionsAsync();
+  //     if (status !== 'granted') {
+  //       console.log('Permission to receive notifications was denied');
+  //       return;
+  //     }
 
-      const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log('Expo Push Token: ', expoPushToken);
-    } catch (error) {
-      console.error('Error getting push token: ', error.message);
-    }
-  };
+  //     const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
+  //     console.log('Expo Push Token: ', expoPushToken);
+  //   } catch (error) {
+  //     console.error('Error getting push token: ', error.message);
+  //   }
+  // };
 
   const { sunPosition, error } = useSunPositionCalculator();
 
@@ -38,11 +39,12 @@ export default function App() {
     );
   }
 
-  const vitaminDMessage = sunPosition.altitude > 40 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
+  const vitaminDMessage = sunPosition.altitude > 45 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
 
   return (
     <View style={styles.container}>
       <View style={styles.upperHalf}>
+        <AltitudeScale />
         <SunPosition sunPositionX={sunPosition.x} sunPositionY={sunPosition.y} />
         <StatusBar style='auto' />
       </View>

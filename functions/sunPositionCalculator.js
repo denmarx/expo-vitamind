@@ -47,6 +47,7 @@ export const useSunPositionCalculator = () => {
     getUserLocation();
   }, []);
 
+  // function to calculate the x position of the sun based on its azimuth in radians
   const calculateSunPositionX = (azimuth) => {
     const azimuthInRadians = azimuth < 0 ? azimuth + 2 * Math.PI : azimuth; // Convert negative azimuth to positive
     const adjustedAzimuth = ((azimuthInRadians - Math.PI / 2) / Math.PI) % 1;
@@ -58,7 +59,6 @@ export const useSunPositionCalculator = () => {
     // calculate the percentage of the maximum altitude (90 degrees)
     const percentageOfMaxAltitude = altitudeInDegrees / 90;
     // calculate the y position of the sun based on the percentage of the maximum altitude
-
     return (Dimensions.get('window').height / 2) * (1 - percentageOfMaxAltitude);
   };
   return { sunPosition, error };
