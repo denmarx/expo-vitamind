@@ -5,31 +5,10 @@ import { useSunPositionCalculator } from './functions/sunPositionCalculator';
 import { Dimensions } from 'react-native';
 import Constants from 'expo-constants';
 import AltitudeScale from './components/AltitudeScale';
-import * as Notifications from 'expo-notifications';
-import { useEffect } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function App() {
-  // useEffect(() => {
-  //   registerForPushNotificationsAsync();
-  // }, []);
-
-  // const registerForPushNotificationsAsync = async () => {
-  //   try {
-  //     const { status } = await Notifications.getPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       console.log('Permission to receive notifications was denied');
-  //       return;
-  //     }
-
-  //     const expoPushToken = (await Notifications.getExpoPushTokenAsync()).data;
-  //     console.log('Expo Push Token: ', expoPushToken);
-  //   } catch (error) {
-  //     console.error('Error getting push token: ', error.message);
-  //   }
-  // };
-
   const { sunPosition, error } = useSunPositionCalculator();
-
   if (error) {
     return (
       <View style={styles.container}>
@@ -43,11 +22,11 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.upperHalf}>
+      <LinearGradient colors={['#87ceeb', '#87a5eb']} style={styles.upperHalf}>
         <AltitudeScale />
         <SunPosition sunPositionX={sunPosition.x} sunPositionY={sunPosition.y} />
         <StatusBar style='auto' />
-      </View>
+      </LinearGradient>
       <View style={styles.lowerHalf}>
         <Text>{vitaminDMessage}</Text>
       </View>

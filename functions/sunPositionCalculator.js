@@ -28,13 +28,18 @@ export const useSunPositionCalculator = () => {
         // get the latitude and longitude from the user's position
         const { latitude, longitude } = coords;
         // calculate the position of the sun based on the user's location
-        const times = SunCalc.getPosition(new Date(), latitude, longitude);
+        const position = SunCalc.getPosition(new Date(), latitude, longitude);
+        const times = SunCalc.getTimes(new Date(), latitude, longitude);
+
+        const sunrise = times.sunrise;
+        const sunset = times.sunset;
+
         // convert the altitude to degrees
-        const altitudeInDegrees = times.altitude * (180 / Math.PI);
+        const altitudeInDegrees = position.altitude * (180 / Math.PI);
 
         // set the position of the sun
         setSunPosition({
-          x: calculateSunPositionX(times.azimuth),
+          x: calculateSunPositionX(sunrise, sunset),
           y: calculateSunPositionY(altitudeInDegrees),
           altitude: altitudeInDegrees,
         });
@@ -47,11 +52,13 @@ export const useSunPositionCalculator = () => {
     getUserLocation();
   }, []);
 
-  // function to calculate the x position of the sun based on its azimuth in radians
-  const calculateSunPositionX = (azimuth) => {
-    const azimuthInRadians = azimuth < 0 ? azimuth + 2 * Math.PI : azimuth; // Convert negative azimuth to positive
-    const adjustedAzimuth = ((azimuthInRadians - Math.PI / 2) / Math.PI) % 1;
-    return Dimensions.get('window').width * adjustedAzimuth;
+  const calculateSunPositionX = (sunrise, sunset) => {
+    const timeDifferenceInHours = (sunset - sunrise) / 3600000;
+    const currentTime = new Date();
+    const currentTimeInHours = currentTime.getHours() + currentTime.getMinutes() / 60;
+    const currentTimeInHoursSinceSunrise = currentTimeInHours - sunrise.getHours() - sunrise.getMinutes() / 60;
+    const percentageOfDay = currentTimeInHoursSinceSunrise / timeDifferenceInHours;
+    return (Dimensions.get('window').width - 70) * percentageOfDay;
   };
 
   // function to calculate the y position of the sun based on its altitude in degrees
