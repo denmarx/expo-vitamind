@@ -6,9 +6,37 @@ import { Dimensions } from 'react-native';
 import Constants from 'expo-constants';
 import AltitudeScale from './components/AltitudeScale';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+import { useCallback, useEffect } from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    Proxima: require('./assets/proxima-nova/Proxima-Nova-Regular.otf'),
+  });
+
   const { sunPosition, error } = useSunPositionCalculator();
+  const [vitaminDProductionOccurred, setVitaminDProductionOccurred] = useState(false);
+
+  useEffect(() => {
+    if (sunPosition.altitude > 45 && !vitaminDProductionOccurred) {
+      setVitaminDProductionOccurred(true);
+    }
+  }, [sunPosition]);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
   if (error) {
     return (
       <View style={styles.container}>
@@ -22,13 +50,19 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={['#87ceeb', '#87a5eb']} style={styles.upperHalf}>
+      <LinearGradient colors={['#87ceeb', '#57b6de']} style={styles.upperHalf}>
         <AltitudeScale />
         <SunPosition sunPositionX={sunPosition.x} sunPositionY={sunPosition.y} />
         <StatusBar style='auto' />
       </LinearGradient>
-      <View style={styles.lowerHalf}>
-        <Text>{vitaminDMessage}</Text>
+      <View style={styles.lowerHalf} onLayout={onLayoutRootView}>
+        <Ionicons
+          name='sunny'
+          size={50}
+          color={vitaminDProductionOccurred ? 'gold' : 'gray'}
+          style={{ marginBottom: 20 }}
+        />
+        <Text style={{ fontFamily: 'Proxima', fontSize: 25 }}>{vitaminDMessage} </Text>
       </View>
       <View style={styles.horizon}></View>
     </View>
@@ -47,7 +81,8 @@ const styles = StyleSheet.create({
   lowerHalf: {
     flex: 0.5,
     width: '100%',
-    backgroundColor: '#fff',
+
+    backgroundColor: '#FFEBCD',
     alignItems: 'center',
     justifyContent: 'center',
   },
