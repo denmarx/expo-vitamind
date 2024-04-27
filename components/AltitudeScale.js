@@ -9,7 +9,12 @@ export default function AltitudeScale() {
       {/* Create an array of 10 elements and map over it to render the altitude scale ticks */}
       {[...Array(10).keys()].map(
         // Render a tick for each element in the array, except the last one
-        (i) => i !== 9 && <Text style={{ ...styles.tick, top: `${i * 10}%` }}>{(9 - i) * 10}°</Text>
+        (i) =>
+          i !== 9 && (
+            <Text key={i} style={{ ...styles.tick, top: `${i * 10}%` }}>
+              {(9 - i) * 10}°
+            </Text>
+          )
       )}
       <View style={styles.dashedLine}></View>
     </View>
