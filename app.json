@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.denmarx.vitaminD"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,9 +29,14 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/proxima-nova/Proxima-Nova-Regular.otf"]
+          "fonts": ["./assets/proxima-nova/Proxima-Nova-Regular.otf"]
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "22253436-ac85-4279-be1a-cb0cb0c42796"
+      }
+    }
   }
 }

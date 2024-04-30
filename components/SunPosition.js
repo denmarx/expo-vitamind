@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Constants from 'expo-constants';
 
 // component that displays the position of the sun
 const SunPosition = ({ sunPositionX, sunPositionY }) => {
@@ -8,7 +9,7 @@ const SunPosition = ({ sunPositionX, sunPositionY }) => {
   // return <View style={[styles.sun, { left: sunPositionX, top: sunPositionY }]}></View>;
   return (
     <LinearGradient
-      style={[styles.sun, { left: sunPositionX, top: sunPositionY }]}
+      style={[styles.sun, { left: sunPositionX, top: sunPositionY - 40 + Constants.statusBarHeight }]}
       colors={['#ffd700', '#ffda44', '#ffdf77']}
       stops={[0.1, 0.5, 1]}
       center={[25, 25]}

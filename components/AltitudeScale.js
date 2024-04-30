@@ -16,7 +16,7 @@ export default function AltitudeScale() {
             </Text>
           )
       )}
-      <View style={styles.dashedLine}></View>
+      {/* <View style={styles.dashedLine}></View> */}
     </View>
   );
 }

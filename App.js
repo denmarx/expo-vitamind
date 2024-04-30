@@ -2,8 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import SunPosition from './components/SunPosition';
 import { useSunPositionCalculator } from './functions/sunPositionCalculator';
-import { Dimensions } from 'react-native';
-import Constants from 'expo-constants';
 import AltitudeScale from './components/AltitudeScale';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts } from 'expo-font';
@@ -11,6 +9,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
+import { calculateVitaminDTimer } from './functions/calculateVitaminDTimer';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,14 +18,42 @@ export default function App() {
     Proxima: require('./assets/proxima-nova/Proxima-Nova-Regular.otf'),
   });
 
-  const { sunPosition, error } = useSunPositionCalculator();
+  const { sunPosition, error, latitude, longitude } = useSunPositionCalculator();
   const [vitaminDProductionOccurred, setVitaminDProductionOccurred] = useState(false);
+
+  const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
     if (sunPosition.altitude > 45 && !vitaminDProductionOccurred) {
       setVitaminDProductionOccurred(true);
     }
   }, [sunPosition]);
+
+  useEffect(() => {
+    const timeWhenSunReaches45Degrees = calculateVitaminDTimer(latitude, longitude);
+    const intervalId = setInterval(() => {
+      const currentTime = new Date();
+      const timeDifferenceMilliseconds = timeWhenSunReaches45Degrees - currentTime;
+
+      if (timeDifferenceMilliseconds >= 0) {
+        const totalMinutes = Math.floor(timeDifferenceMilliseconds / (1000 * 60));
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        // Display time left in hours and minutes if above 60 minutes, else display just minutes
+        if (totalMinutes >= 60) {
+          setTimeLeft(`${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`);
+        } else {
+          setTimeLeft(`${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`);
+        }
+      } else {
+        // If time left is negative, it means the sun has already passed 45 degrees altitude again
+        setTimeLeft('0 minutes');
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
@@ -53,7 +80,6 @@ export default function App() {
       <LinearGradient colors={['#87ceeb', '#57b6de']} style={styles.upperHalf}>
         <AltitudeScale />
         <SunPosition sunPositionX={sunPosition.x} sunPositionY={sunPosition.y} />
-        <StatusBar style='auto' />
       </LinearGradient>
       <View style={styles.lowerHalf} onLayout={onLayoutRootView}>
         <Ionicons
@@ -63,8 +89,8 @@ export default function App() {
           style={{ marginBottom: 20 }}
         />
         <Text style={{ fontFamily: 'Proxima', fontSize: 25 }}>{vitaminDMessage} </Text>
+        <Text style={{ fontFamily: 'Proxima', fontSize: 15 }}>Time until sun reaches 45 degrees: {timeLeft}</Text>
       </View>
-      <View style={styles.horizon}></View>
     </View>
   );
 }
@@ -85,12 +111,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFEBCD',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  horizon: {
-    position: 'absolute',
-    top: Dimensions.get('window').height / 2 + Constants.statusBarHeight / 2,
-    height: 2,
-    width: '100%',
-    backgroundColor: '#000',
   },
 });
