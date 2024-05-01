@@ -21,6 +21,8 @@ export default function App() {
   const { sunPosition, error, latitude, longitude } = useSunPositionCalculator();
   const [vitaminDProductionOccurred, setVitaminDProductionOccurred] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
+  const [vitaminDMessage, setVitaminDMessage] = useState('');
+  const [vitaminDColor, setVitaminDColor] = useState('gray');
 
   // Check if the sun is above 45 degrees altitude and set the state accordingly
   useEffect(() => {
@@ -29,29 +31,42 @@ export default function App() {
     }
   }, [sunPosition]);
 
-  // Calculate time left until sun reaches 45 degrees altitude
   useEffect(() => {
-    const timeWhenSunReaches45Degrees = calculateVitaminDTimer(latitude, longitude);
-    const intervalId = setInterval(() => {
+    const vitaminDMessage = sunPosition.altitude > 45 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
+    const vitamindDColor = vitaminDProductionOccurred ? 'gold' : 'gray';
+
+    setVitaminDMessage(vitaminDMessage);
+    setVitaminDColor(vitamindDColor);
+  }, [sunPosition, vitaminDProductionOccurred]);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const timeWhenSunReaches45Degrees = calculateVitaminDTimer(latitude, longitude);
       const currentTime = new Date();
       const timeDifferenceMilliseconds = timeWhenSunReaches45Degrees - currentTime;
 
-      // Calculate time left until sun reaches 45 degrees altitude
       if (timeDifferenceMilliseconds >= 0) {
-        const totalMinutes = Math.floor(timeDifferenceMilliseconds / (1000 * 60));
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
+        const totalSeconds = Math.floor(timeDifferenceMilliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
 
-        // Display time left in hours and minutes if above 60 minutes, else display just minutes
-        if (totalMinutes >= 60) {
-          setTimeLeft(`${hours} hour${hours > 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`);
+        // Return formatted time left
+        if (totalSeconds >= 3600) {
+          return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${
+            minutes !== 1 ? 's' : ''
+          } ${seconds} second${seconds !== 1 ? 's' : ''}`;
+        } else if (totalSeconds >= 60) {
+          return `${minutes} minute${minutes !== 1 ? 's' : ''} ${seconds} second${seconds !== 1 ? 's' : ''}`;
         } else {
-          setTimeLeft(`${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`);
+          return `${seconds} second${seconds !== 1 ? 's' : ''}`;
         }
       } else {
-        // If time left is negative, it means the sun has already passed 45 degrees altitude again
-        setTimeLeft('0 minutes');
+        return '0 seconds';
       }
+    };
+    const intervalId = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     return () => clearInterval(intervalId);
@@ -78,7 +93,7 @@ export default function App() {
     );
   }
 
-  const vitaminDMessage = sunPosition.altitude > 45 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
+  // const vitaminDMessage = sunPosition.altitude > 45 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
 
   return (
     <View style={styles.container}>
