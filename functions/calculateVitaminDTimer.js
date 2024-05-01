@@ -9,11 +9,9 @@ export const calculateVitaminDTimer = (latitude, longitude) => {
 
   let sunrise = times.sunrise;
   let sunset = times.sunset;
-
   let interval = 60 * 1000; // 1 minute
 
   let currentTime = new Date(sunrise.getTime() + interval);
-
   let timeAtAltitude = null;
 
   while (currentTime < sunset) {

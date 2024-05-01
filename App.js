@@ -20,21 +20,23 @@ export default function App() {
 
   const { sunPosition, error, latitude, longitude } = useSunPositionCalculator();
   const [vitaminDProductionOccurred, setVitaminDProductionOccurred] = useState(false);
-
   const [timeLeft, setTimeLeft] = useState(null);
 
+  // Check if the sun is above 45 degrees altitude and set the state accordingly
   useEffect(() => {
     if (sunPosition.altitude > 45 && !vitaminDProductionOccurred) {
       setVitaminDProductionOccurred(true);
     }
   }, [sunPosition]);
 
+  // Calculate time left until sun reaches 45 degrees altitude
   useEffect(() => {
     const timeWhenSunReaches45Degrees = calculateVitaminDTimer(latitude, longitude);
     const intervalId = setInterval(() => {
       const currentTime = new Date();
       const timeDifferenceMilliseconds = timeWhenSunReaches45Degrees - currentTime;
 
+      // Calculate time left until sun reaches 45 degrees altitude
       if (timeDifferenceMilliseconds >= 0) {
         const totalMinutes = Math.floor(timeDifferenceMilliseconds / (1000 * 60));
         const hours = Math.floor(totalMinutes / 60);
@@ -53,17 +55,20 @@ export default function App() {
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [latitude, longitude]);
 
+  // Hide the splash screen when the root view has been laid out
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
+  // If fonts are not loaded yet, return null
   if (!fontsLoaded && !fontError) {
     return null;
   }
+  // If there is an error, display the error message
   if (error) {
     return (
       <View style={styles.container}>
