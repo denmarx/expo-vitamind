@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, AppState } from 'react-native';
 import SunPosition from './components/SunPosition';
 import { useSunPositionCalculator } from './functions/sunPositionCalculator';
 import AltitudeScale from './components/AltitudeScale';
@@ -10,15 +10,31 @@ import { useCallback, useEffect } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { calculateVitaminDTimer } from './functions/calculateVitaminDTimer';
+import HourlyScale from './components/HourlyScale';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const appState = AppState.currentState;
+  const [nextAppState, setNextAppState] = useState(appState);
+  // console.log('AppState', nextAppState);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      setNextAppState(nextAppState);
+      // console.log('nextAppState', nextAppState);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   const [fontsLoaded, fontError] = useFonts({
     Proxima: require('./assets/proxima-nova/Proxima-Nova-Regular.otf'),
   });
 
-  const { sunPosition, error, latitude, longitude } = useSunPositionCalculator();
+  const { sunPosition, error, latitude, longitude, sunrise, sunset } = useSunPositionCalculator(nextAppState);
   const [vitaminDProductionOccurred, setVitaminDProductionOccurred] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
   const [vitaminDMessage, setVitaminDMessage] = useState('');
@@ -28,16 +44,18 @@ export default function App() {
   useEffect(() => {
     if (sunPosition.altitude > 45 && !vitaminDProductionOccurred) {
       setVitaminDProductionOccurred(true);
+    } else if (sunPosition.altitude <= 45 && vitaminDProductionOccurred) {
+      setVitaminDProductionOccurred(false);
     }
-  }, [sunPosition]);
+  }, [sunPosition, appState, vitaminDProductionOccurred]);
 
   useEffect(() => {
     const vitaminDMessage = sunPosition.altitude > 45 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
-    const vitamindDColor = vitaminDProductionOccurred ? 'gold' : 'gray';
+    const vitaminDColor = vitaminDProductionOccurred ? 'gold' : 'gray';
 
     setVitaminDMessage(vitaminDMessage);
-    setVitaminDColor(vitamindDColor);
-  }, [sunPosition, vitaminDProductionOccurred]);
+    setVitaminDColor(vitaminDColor);
+  }, [sunPosition, vitaminDProductionOccurred, appState]);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -94,18 +112,18 @@ export default function App() {
   }
 
   // const vitaminDMessage = sunPosition.altitude > 45 ? 'You are getting Vitamin D!' : 'You are not getting Vitamin D!';
-
   return (
     <View style={styles.container}>
       <LinearGradient colors={['#87ceeb', '#57b6de']} style={styles.upperHalf}>
         <AltitudeScale />
         <SunPosition sunPositionX={sunPosition.x} sunPositionY={sunPosition.y} />
       </LinearGradient>
+      {/* <HourlyScale sunrise={sunrise.getHours()} sunset={Math.floor(sunset.getHours())} /> */}
       <View style={styles.lowerHalf} onLayout={onLayoutRootView}>
         <Ionicons
           name='sunny'
           size={50}
-          color={vitaminDProductionOccurred ? 'gold' : 'gray'}
+          color={vitaminDProductionOccurred ? vitaminDColor : 'gray'}
           style={{ marginBottom: 20 }}
         />
         <Text style={{ fontFamily: 'Proxima', fontSize: 25 }}>{vitaminDMessage} </Text>

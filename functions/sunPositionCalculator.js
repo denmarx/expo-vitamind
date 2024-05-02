@@ -4,13 +4,16 @@ import * as Location from 'expo-location';
 import { Dimensions } from 'react-native';
 
 // function component that calculates the position of the sun based on the user's location
-export const useSunPositionCalculator = () => {
+export const useSunPositionCalculator = (appState) => {
   // state to store the position of the sun
   const [sunPosition, setSunPosition] = useState({ x: 0, y: 0 });
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
+  const [sunrise, setSunrise] = useState(new Date());
+  const [sunset, setSunset] = useState(new Date());
   const [error, setError] = useState(null);
-
+  const state = appState;
+  console.log(state);
   // useEffect hook to get the user's location and calculate the sun's position
   useEffect(() => {
     const getUserLocation = async () => {
@@ -44,32 +47,39 @@ export const useSunPositionCalculator = () => {
       }
     };
 
+    // const times = SunCalc.getTimes(new Date(), latitude, longitude);
+
+    // setSunrise(times.sunrise);
+    // setSunset(times.sunset);
+
     // call the getUserLocation function when the component mounts
     getUserLocation();
-  }, [latitude, longitude]);
+  }, [latitude, longitude, state]);
 
   const updateSunPosition = (latitude, longitude) => {
+    const times = SunCalc.getTimes(new Date(), latitude, longitude);
+    const sunrise = times.sunrise;
+    const sunset = times.sunset;
+    setSunrise(sunrise);
+    setSunset(sunset);
+
     const position = SunCalc.getPosition(new Date(), latitude, longitude);
     const altitudeInDegrees = position.altitude * (180 / Math.PI);
 
     setSunPosition({
-      x: calculateSunPositionX(),
+      x: calculateSunPositionX(sunrise, sunset),
       y: calculateSunPositionY(altitudeInDegrees),
       altitude: altitudeInDegrees,
     });
   };
 
-  const calculateSunPositionX = () => {
-    const times = SunCalc.getTimes(new Date(), latitude, longitude);
-    const sunrise = times.sunrise;
-    const sunset = times.sunset;
-
+  const calculateSunPositionX = (sunrise, sunset) => {
     const timeDifferenceInHours = (sunset - sunrise) / 3600000;
     const currentTime = new Date();
     const currentTimeInHours = currentTime.getHours() + currentTime.getMinutes() / 60;
     const currentTimeInHoursSinceSunrise = currentTimeInHours - sunrise.getHours() - sunrise.getMinutes() / 60;
     const percentageOfDay = currentTimeInHoursSinceSunrise / timeDifferenceInHours;
-    return (Dimensions.get('window').width - 70) * percentageOfDay;
+    return Dimensions.get('window').width * percentageOfDay;
   };
 
   // function to calculate the y position of the sun based on its altitude in degrees
@@ -80,5 +90,5 @@ export const useSunPositionCalculator = () => {
     return (Dimensions.get('window').height / 2) * (1 - percentageOfMaxAltitude);
   };
 
-  return { sunPosition, error, latitude, longitude };
+  return { sunPosition, error, latitude, longitude, sunrise, sunset };
 };

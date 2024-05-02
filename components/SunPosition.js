@@ -9,7 +9,7 @@ const SunPosition = ({ sunPositionX, sunPositionY }) => {
   // return <View style={[styles.sun, { left: sunPositionX, top: sunPositionY }]}></View>;
   return (
     <LinearGradient
-      style={[styles.sun, { left: sunPositionX, top: sunPositionY - 40 + Constants.statusBarHeight }]}
+      style={[styles.sun, { left: sunPositionX, top: sunPositionY - 5 / 2 + Constants.statusBarHeight }]}
       colors={['#ffd700', '#ffda44', '#ffdf77']}
       stops={[0.1, 0.5, 1]}
       center={[25, 25]}
@@ -22,8 +22,8 @@ const SunPosition = ({ sunPositionX, sunPositionY }) => {
 const styles = StyleSheet.create({
   sun: {
     position: 'absolute',
-    width: 70,
-    height: 70,
+    width: 5,
+    height: 5,
     backgroundColor: '#ffd700',
     borderRadius: 50,
   },
