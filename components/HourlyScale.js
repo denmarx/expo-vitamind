@@ -6,7 +6,16 @@ const HourlyScale = ({ sunrise, sunset }) => {
   const hours = sunset - sunrise + 1;
 
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: deviceWidth, height: 20 }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: deviceWidth,
+        height: 20,
+        paddingLeft: 5,
+        paddingRight: 5,
+      }}
+    >
       {Array.from({ length: hours }, (_, i) => i + sunrise).map((hour) => (
         <Text key={hour}>{hour}</Text>
       ))}

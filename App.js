@@ -17,12 +17,10 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const appState = AppState.currentState;
   const [nextAppState, setNextAppState] = useState(appState);
-  // console.log('AppState', nextAppState);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       setNextAppState(nextAppState);
-      // console.log('nextAppState', nextAppState);
     });
 
     return () => {
@@ -118,7 +116,7 @@ export default function App() {
         <AltitudeScale />
         <SunPosition sunPositionX={sunPosition.x} sunPositionY={sunPosition.y} />
       </LinearGradient>
-      {/* <HourlyScale sunrise={sunrise.getHours()} sunset={Math.floor(sunset.getHours())} /> */}
+      <HourlyScale sunrise={sunrise.getHours()} sunset={Math.floor(sunset.getHours())} />
       <View style={styles.lowerHalf} onLayout={onLayoutRootView}>
         <Ionicons
           name='sunny'

@@ -13,48 +13,52 @@ export const useSunPositionCalculator = (appState) => {
   const [sunset, setSunset] = useState(new Date());
   const [error, setError] = useState(null);
   const state = appState;
-  console.log(state);
-  // useEffect hook to get the user's location and calculate the sun's position
+
+  const requestPermissions = async () => {
+    let foreGroundPermission = await Location.requestForegroundPermissionsAsync();
+    let backgroundPermission = await Location.requestBackgroundPermissionsAsync();
+
+    if (foreGroundPermission.status !== 'granted' || backgroundPermission.status !== 'granted') {
+      setError('Permission to access location was denied');
+      return;
+    }
+    getUserLocation();
+  };
+
   useEffect(() => {
-    const getUserLocation = async () => {
-      // request permission to access the user's location
-      try {
-        // get the user's location
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        // if permission is not granted, set an error message
-        if (status !== 'granted') {
-          setError('Permission to access location was denied');
-          return;
-        }
+    const checkPermissionStatus = async () => {
+      let foreGroundPermission = await Location.getForegroundPermissionsAsync();
+      let backgroundPermission = await Location.getBackgroundPermissionsAsync();
 
-        // get the user's current position
-        const { coords } = await Location.getCurrentPositionAsync({});
-        // get the latitude and longitude from the user's position
-        const { latitude, longitude } = coords;
-
-        setLatitude(latitude);
-        setLongitude(longitude);
-
-        updateSunPosition(latitude, longitude);
-
-        const intervalId = setInterval(() => {
-          updateSunPosition(latitude, longitude);
-        }, 60000);
-
-        return () => clearInterval(intervalId);
-      } catch (error) {
-        setError('Error getting location: ' + error.message);
+      if (foreGroundPermission.status === 'granted' && backgroundPermission.status === 'granted') {
+        getUserLocation();
+      } else {
+        requestPermissions();
       }
     };
 
-    // const times = SunCalc.getTimes(new Date(), latitude, longitude);
-
-    // setSunrise(times.sunrise);
-    // setSunset(times.sunset);
-
-    // call the getUserLocation function when the component mounts
-    getUserLocation();
+    checkPermissionStatus();
   }, [latitude, longitude, state]);
+
+  const getUserLocation = async () => {
+    try {
+      const { coords } = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = coords;
+
+      setLatitude(latitude);
+      setLongitude(longitude);
+
+      updateSunPosition(latitude, longitude);
+
+      const intervalId = setInterval(() => {
+        updateSunPosition(latitude, longitude);
+      }, 60000);
+
+      return () => clearInterval(intervalId);
+    } catch (error) {
+      setError('Error getting location: ' + error.message);
+    }
+  };
 
   const updateSunPosition = (latitude, longitude) => {
     const times = SunCalc.getTimes(new Date(), latitude, longitude);
