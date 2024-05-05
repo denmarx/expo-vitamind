@@ -80,9 +80,13 @@ export const useSunPositionCalculator = (appState) => {
   const calculateSunPositionX = (sunrise, sunset) => {
     const timeDifferenceInHours = (sunset - sunrise) / 3600000;
     const currentTime = new Date();
-    const currentTimeInHours = currentTime.getHours() + currentTime.getMinutes() / 60;
-    const currentTimeInHoursSinceSunrise = currentTimeInHours - sunrise.getHours() - sunrise.getMinutes() / 60;
-    const percentageOfDay = currentTimeInHoursSinceSunrise / timeDifferenceInHours;
+    const sunriseTime = new Date(sunrise);
+    const sunsetTime = new Date(sunset);
+    // const currentTimeInHours = currentTime.getHours() + currentTime.getMinutes() / 60;
+    // const currentTimeInHoursSinceSunrise = currentTimeInHours - sunrise.getHours() - sunrise.getMinutes() / 60;
+    const percentageOfDay = (currentTime - sunriseTime) / (sunsetTime - sunriseTime);
+
+    console.log(percentageOfDay, Dimensions.get('window').width * percentageOfDay);
     return Dimensions.get('window').width * percentageOfDay;
   };
 
