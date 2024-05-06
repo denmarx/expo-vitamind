@@ -1,0 +1,20 @@
+{
+  "welcome": "Welcome to Solar Dose!",
+  "introText": "We are very pleased to present the first version of Solar Dose!",
+  "appName": "Solar Dose ",
+  "introText2": "informs you about the sun's altitude based on your location and if Vitamin D production may occur.",
+  "firstHeading": "Solar altitude and vitamin D production:",
+  "firstInfoText1": "When the sun reaches an altitude of around 45 degrees, your skin begins producing ",
+  "vitaminD": "Vitamin D. ",
+  "firstInfoText2": "This essential vitamin is crucial for ",
+  "firstInfoText3": "bone health and immune system support. ",
+  "secondHeading": "Optimal Sun Exposure:",
+  "secondInfoText": "Factors such as location, altitude, skin type, clouds and sun exposure time play a role in getting enough vitamin D. Normally 10-30 minutes of sunlight a day is sufficient, sometimes up to 45-60 minutes. Longer exposure does not bring any additional benefits, but can damage the skin.",
+  "thirdHeading": "Sunscreen and Vitamin D:",
+  "thirdInfoText": "Sunscreen protects the skin from sunburn and skin cancer, but it also blocks vitamin D production. Depending on your skin type, it is recommended to spend 10-30 minutes without sunscreen to start vitamin D production.",
+  "fourthHeading": "Future Updates:",
+  "fourthInfoText": "Solar Dose is continuously improved to provide comprehensive recommendations. Factors such as cloud cover and UV index are taken into account when updates are made.",
+  "thankYou": "Thank you for choosing Solar Dose. Stay tuned for updates and new features!",
+  "vitaminDMessageYes": "You are getting Vitamin D!",
+  "vitaminDMessageNo": "You are not getting Vitamin D!"
+}

@@ -1,0 +1,20 @@
+{
+  "welcome": "Willkomen bei Solar Dose!",
+  "introText": "Wir freuen uns sehr, Ihnen die erste Version von Solar Dose vorzustellen! ",
+  "appName": "Solar Dose ",
+  "introText2": "informiert Sie über den Sonnenstand an Ihrem Standort und darüber, ob eine Vitamin-D-Produktion in der Haut stattfinden kann.",
+  "firstHeading": "Sonnenhöhe und Vitamin D-Produktion:",
+  "firstInfoText1": "Wenn die Sonne eine Höhe von etwa 45 Grad erreicht, beginnt die Haut mit der Produktion von ",
+  "vitaminD": "Vitamin D. ",
+  "firstInfoText2": "Dieses essentielle Vitamin ist wichtig für ",
+  "firstInfoText3": "die Knochengesundheit und die Unterstützung des Immunsystems. ",
+  "secondHeading": "Wie viel Zeit in der Sonne verbringen:",
+  "secondInfoText": "Für ausreichend Vitamin D spielen Faktoren wie Standort, Höhe, Hauttyp, Bewölkung und Sonnenexpositionszeit eine Rolle. Normalerweise sind 10-30 Minuten Sonnenlicht täglich ausreichend, manchmal bis zu 45-60 Minuten. Längere Exposition bringt keine zusätzlichen Vorteile, sondern kann der Haut schaden.",
+  "thirdHeading": "Der Effekt von Sonnencreme:",
+  "thirdInfoText": "Sonnencreme schützt die Haut vor Sonnenbrand und Hautkrebs, aber sie blockiert auch die Vitamin D-Produktion. Es wird empfohlen, je nach Hauttyp, 10-30 Minuten ohne Sonnencreme zu verbringen, um die Vitamin D-Produktion zu starten.",
+  "fourthHeading": "Zukünftige Updates:",
+  "fourthInfoText": "Solar Dose wird kontinuierlich verbessert, um umfassende Empfehlungen zu geben. Bei Aktualisierungen werden Faktoren wie Bewölkung und UV-Index berücksichtigt.",
+  "thankYou": "Vielen Dank, dass Sie sich für Solar Dose entschieden haben. Bleiben Sie dran für Updates und neue Funktionen!",
+  "vitaminDMessageYes": "Du bekommst Vitamin D!",
+  "vitaminDMessageNo": "Du bekommst kein Vitamin D!"
+}
