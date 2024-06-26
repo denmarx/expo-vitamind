@@ -18,7 +18,7 @@ export const useSunPositionCalculator = (appState) => {
     let foreGroundPermission = await Location.requestForegroundPermissionsAsync();
     let backgroundPermission = await Location.requestBackgroundPermissionsAsync();
 
-    if (foreGroundPermission.status !== 'granted' || backgroundPermission.status !== 'granted') {
+    if (foreGroundPermission.status !== 'granted') {
       setError('Permission to access location was denied');
       return;
     }
@@ -26,22 +26,30 @@ export const useSunPositionCalculator = (appState) => {
   };
 
   useEffect(() => {
-    const checkPermissionStatus = async () => {
-      let foreGroundPermission = await Location.getForegroundPermissionsAsync();
-      let backgroundPermission = await Location.getBackgroundPermissionsAsync();
+    if (state === 'active') {
+      const checkPermissionStatus = async () => {
+        try {
+          let foreGroundPermission = await Location.getForegroundPermissionsAsync();
 
-      if (foreGroundPermission.status === 'granted' && backgroundPermission.status === 'granted') {
-        getUserLocation();
-      } else {
-        requestPermissions();
-      }
-    };
-
-    checkPermissionStatus();
-  }, [latitude, longitude, state]);
+          if (foreGroundPermission.status === 'granted') {
+            getUserLocation();
+          } else {
+            requestPermissions();
+          }
+        } catch (error) {
+          setError('Error checking permission status:' + error);
+        }
+      };
+      checkPermissionStatus();
+    }
+  }, [state]);
 
   const getUserLocation = async () => {
     try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        throw new Error('Permission to access location was denied');
+      }
       const { coords } = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = coords;
 
@@ -57,24 +65,30 @@ export const useSunPositionCalculator = (appState) => {
       return () => clearInterval(intervalId);
     } catch (error) {
       setError('Error getting location: ' + error.message);
+      console.error('Error getting location: ', error);
     }
   };
 
   const updateSunPosition = (latitude, longitude) => {
-    const times = SunCalc.getTimes(new Date(), latitude, longitude);
-    const sunrise = times.sunrise;
-    const sunset = times.sunset;
-    setSunrise(sunrise);
-    setSunset(sunset);
+    try {
+      const times = SunCalc.getTimes(new Date(), latitude, longitude);
+      const sunrise = times.sunrise;
+      const sunset = times.sunset;
+      setSunrise(sunrise);
+      setSunset(sunset);
 
-    const position = SunCalc.getPosition(new Date(), latitude, longitude);
-    const altitudeInDegrees = position.altitude * (180 / Math.PI);
+      const position = SunCalc.getPosition(new Date(), latitude, longitude);
+      const altitudeInDegrees = position.altitude * (180 / Math.PI);
 
-    setSunPosition({
-      x: calculateSunPositionX(sunrise, sunset),
-      y: calculateSunPositionY(altitudeInDegrees),
-      altitude: altitudeInDegrees,
-    });
+      setSunPosition({
+        x: calculateSunPositionX(sunrise, sunset),
+        y: calculateSunPositionY(altitudeInDegrees),
+        altitude: altitudeInDegrees,
+      });
+    } catch (error) {
+      setError('Error calculating sun position: ' + error.message);
+      console.error('Error calculating sun position: ', error);
+    }
   };
 
   const calculateSunPositionX = (sunrise, sunset) => {
@@ -82,8 +96,6 @@ export const useSunPositionCalculator = (appState) => {
     const currentTime = new Date();
     const sunriseTime = new Date(sunrise);
     const sunsetTime = new Date(sunset);
-    // const currentTimeInHours = currentTime.getHours() + currentTime.getMinutes() / 60;
-    // const currentTimeInHoursSinceSunrise = currentTimeInHours - sunrise.getHours() - sunrise.getMinutes() / 60;
     const percentageOfDay = (currentTime - sunriseTime) / (sunsetTime - sunriseTime);
 
     return Dimensions.get('window').width * percentageOfDay;
