@@ -1,3 +1,6 @@
+PREVIEW available here:
+https://snack.expo.dev/@denmarx/github.com-denmarx-expo-vitamind
+
 Solar Dose
 Welcome to Solar Dose!
 
