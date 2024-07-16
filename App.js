@@ -55,15 +55,14 @@ export default function App() {
   const responseListener = useRef();
   const BACKGROUND_TASK_NAME = 'updateSunPositionTask';
 
+  // defines the background tasks to fetch current sun position, logs it or errors and returns success or failure
   TaskManager.defineTask(BACKGROUND_TASK_NAME, async () => {
     const { sunPosition, error } = useSunPositionCalculator();
-
     if (error) {
       console.log('Error fetching sun position: ', error);
       return TaskManager.TaskResult.Failure;
     }
     console.log('sunPosition: ', sunPosition);
-
     return TaskManager.TaskResult.Success;
   });
 
@@ -72,11 +71,13 @@ export default function App() {
     registerBackgroundTask();
   }, []);
 
-  // Function to register the background task
+  // Function to register the background task every 10 min to updated sun position
   const registerBackgroundTask = async () => {
     if (!(await TaskManager.isTaskRegisteredAsync(BACKGROUND_TASK_NAME))) {
-      TaskManager.unregisterTaskAsync(BACKGROUND_TASK_NAME, {
-        frequency: 600 * 1000, // 10 minutes
+      await TaskManager.registerTaskAsync(BACKGROUND_TASK_NAME, {
+        minimumInterval: 600, // 10 minutes
+        stopOnTerminate: false,
+        startOnBott: true,
       });
     }
   };
@@ -95,25 +96,32 @@ export default function App() {
     i18n
   );
 
-  // Schedule a notification
+  // Notification Listener: calls the register method to register device and get the push token data
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => setExpoPushToken(token));
 
+    // listen for notifications received while app is in foreground and stores in state
     notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
       setNotification(notification);
     });
 
+    // listens for user interaction with notification (like tapping) and logs response
     responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
       console.log(response);
     });
 
+    // Cleanup when components unmounts to prevent memory leaks
     return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
     };
   }, []);
 
-  // Check if the sun's altitude has reached 45 degrees
+  // Check if the sun's altitude has reached 45 degrees and sends notification when it's not been sent
   useEffect(() => {
     if (sunPosition.altitude >= 45 && !notificationSent) {
       setNotificationSent(true);
@@ -121,23 +129,49 @@ export default function App() {
     }
   }, [sunPosition, notificationSent]);
 
+  // schedules a local notification 
   const sendNotification = async () => {
-    await schedulePushNotification();
-  };
-
-  async function schedulePushNotification() {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Sun is high enough for Vitamin D production! 🌞',
         body: 'Time to enjoy the sunlight.',
       },
+      // shows notification immediately
       trigger: null,
     });
-  }
+  };
 
+  // Registers Device to receive push notifications
   async function registerForPushNotificationsAsync() {
     let token;
 
+    // Check if device is physical
+    if (!Device.isDevice) {
+      alert('Must use physical device for Push Notifications');
+      return;
+    }
+
+    // Get the existing permission status for notifications
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    // If the permission is not granted, request it
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+
+    // If the final status is granted, retrieve the expo push token and store it in state
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    setExpoPushToken(token);
+    console.log(token);
+
+    // For android, set up notifications with specific settings
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'default',
@@ -146,27 +180,8 @@ export default function App() {
         lightColor: '#FF231F7C',
       });
     }
-
-    if (Device.isDevice) {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
-        return;
-      }
-
-      token = (await Notifications.getExpoPushTokenAsync({ projectId: 'your-project-id' })).data;
-      console.log(token);
-    } else {
-      alert('Must use physical device for Push Notifications');
-    }
-
-    return token;
   }
+
   // Calculate the time left until the sun reaches 45 degrees
   useTimeLeftEffect(latitude, longitude, setTimeLeft);
 

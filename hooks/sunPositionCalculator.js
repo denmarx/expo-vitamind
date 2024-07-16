@@ -3,6 +3,7 @@ import SunCalc from 'suncalc';
 import * as Location from 'expo-location';
 import { Dimensions } from 'react-native';
 
+
 // function component that calculates the position of the sun based on the user's location
 export const useSunPositionCalculator = (appState) => {
   // state to store the position of the sun
@@ -22,6 +23,10 @@ export const useSunPositionCalculator = (appState) => {
       setError('Permission to access location was denied');
       return;
     }
+    if (backgroundPermission.status !== 'granted') {
+      setError('Premission to access location in the background was denied');
+      return;
+    }
     getUserLocation();
   };
 
@@ -30,8 +35,9 @@ export const useSunPositionCalculator = (appState) => {
       const checkPermissionStatus = async () => {
         try {
           let foreGroundPermission = await Location.getForegroundPermissionsAsync();
-
-          if (foreGroundPermission.status === 'granted') {
+          let backgroundPermission = await Location.getBackgroundPermissionsAsync();
+         
+          if (foreGroundPermission.status === 'granted' && backgroundPermission.status === 'granted') {
             getUserLocation();
           } else {
             requestPermissions();
@@ -46,10 +52,15 @@ export const useSunPositionCalculator = (appState) => {
 
   const getUserLocation = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
+      const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
+      const { status: backgroundStatus } = await Location.requestForegroundPermissionsAsync();
+      if (foregroundStatus !== 'granted') {
         throw new Error('Permission to access location was denied');
       }
+      if (backgroundStatus !== 'granted') {
+        throw new Error('Permission to access location in the background was denied');
+      }
+
       const { coords } = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = coords;
 
