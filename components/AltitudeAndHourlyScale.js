@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
   altitudeScale: {
     top: 0 + Constants.statusBarHeight,
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
   tick: {
     position: 'absolute',
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     left: 0,
     paddingLeft: 5,
     paddingRight: 5,
-    top: Dimensions.get('window').height / 2,
+    top: Dimensions.get('window').height / 2 -5,
   },
 });
 

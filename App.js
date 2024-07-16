@@ -10,6 +10,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import Constants from 'expo-constants';
 // Components
 import SunPosition from './components/SunPosition';
 import AltitudeAndHourlyScale from './components/AltitudeAndHourlyScale';
@@ -82,6 +83,7 @@ export default function App() {
 
   // Check if the user wants to see the overlay
   useOverlayStatus(setShowOverlay);
+
   // Check if the user is getting Vitamin D
   useSunPositionEffect(
     sunPosition,
@@ -128,7 +130,6 @@ export default function App() {
       content: {
         title: 'Sun is high enough for Vitamin D production! 🌞',
         body: 'Time to enjoy the sunlight.',
-        data: { data: 'goes here' },
       },
       trigger: null,
     });
@@ -199,9 +200,11 @@ export default function App() {
     );
   }
 
-  i18n.locale = 'en';
+  // Uncomment to trigger localization change on devices which use english as default
+  // i18n.locale = 'en';
   return (
     <View style={styles.container}>
+      <StatusBar style="auto"/>
       <LinearGradient colors={['#87ceeb', '#57b6de']} style={styles.upperHalf}>
         <View style={styles.overlayContainer}>
           <Button title='?' onPress={handleShowOverlayAgain} color='#253941' />
@@ -211,11 +214,7 @@ export default function App() {
       </LinearGradient>
 
       <View style={styles.lowerHalf} onLayout={onLayoutRootView}>
-        {/* <Text>Your expo push token: {expoPushToken}</Text> */}
         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Text>Title: {notification && notification.request.content.title} </Text>
-          {/* <Text>Body: {notification && notification.request.content.body}</Text> */}
-          {/* <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text> */}
         </View>
         <Ionicons
           name='sunny'
@@ -226,12 +225,7 @@ export default function App() {
         <Text style={{ fontFamily: 'Proxima', fontSize: 25 }}>{vitaminDMessage} </Text>
         <Text style={{ fontFamily: 'Proxima', fontSize: 15 }}>Time until sun reaches 45 degrees: {timeLeft}</Text>
       </View>
-      {/* <Button
-        title='Press to schedule a notification'
-        onPress={async () => {
-          await schedulePushNotification();
-        }}
-      /> */}
+
       <InfoOverlay visible={showOverlay} onClose={handleOverlayClose} i18n={i18n} />
     </View>
   );
@@ -246,6 +240,7 @@ const styles = StyleSheet.create({
     flex: 0.5,
     width: '100%',
     position: 'relative',
+    justifyContent: 'center',
   },
   lowerHalf: {
     flex: 0.5,
