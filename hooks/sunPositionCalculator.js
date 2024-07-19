@@ -16,18 +16,25 @@ export const useSunPositionCalculator = (appState) => {
   const state = appState;
 
   const requestPermissions = async () => {
-    let foreGroundPermission = await Location.requestForegroundPermissionsAsync();
-    let backgroundPermission = await Location.requestBackgroundPermissionsAsync();
-
-    if (foreGroundPermission.status !== 'granted') {
-      setError('Permission to access location was denied');
-      return;
+    try {
+      let foreGroundPermission = await Location.requestForegroundPermissionsAsync();
+      // let backgroundPermission = await Location.requestBackgroundPermissionsAsync();
+  
+      if (foreGroundPermission.status !== 'granted') {
+        setError('Permission to access location was denied');
+        return false;
+      }
+      // if (backgroundPermission.status !== 'granted') {
+      //   setError('Permission to access location in the background was denied');
+      //   return false;
+      // }
+      return true;
+    } catch (error) {
+      setError('Error requesting permissions: ' + error.message);
+      console.error('Error requesting permissions:', error);
+      return false;
     }
-    if (backgroundPermission.status !== 'granted') {
-      setError('Premission to access location in the background was denied');
-      return;
-    }
-    getUserLocation();
+    // getUserLocation();
   };
 
   useEffect(() => {
@@ -35,31 +42,35 @@ export const useSunPositionCalculator = (appState) => {
       const checkPermissionStatus = async () => {
         try {
           let foreGroundPermission = await Location.getForegroundPermissionsAsync();
-          let backgroundPermission = await Location.getBackgroundPermissionsAsync();
+          // let backgroundPermission = await Location.getBackgroundPermissionsAsync();
          
-          if (foreGroundPermission.status === 'granted' && backgroundPermission.status === 'granted') {
+          if (foreGroundPermission.status === 'granted') {
             getUserLocation();
           } else {
-            requestPermissions();
+            const permissionGranted = await requestPermissions();
+            if (permissionGranted) {
+              getUserLocation();
+            }
           }
         } catch (error) {
-          setError('Error checking permission status:' + error);
+          setError('Error checking permission status: ' + error);
+          console.error('Error checking permission status: ' + error);
         }
       };
+
+
       checkPermissionStatus();
     }
   }, [state]);
 
   const getUserLocation = async () => {
     try {
-      const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
-      const { status: backgroundStatus } = await Location.requestForegroundPermissionsAsync();
-      if (foregroundStatus !== 'granted') {
-        throw new Error('Permission to access location was denied');
-      }
-      if (backgroundStatus !== 'granted') {
-        throw new Error('Permission to access location in the background was denied');
-      }
+      // const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
+      // const { status: backgroundStatus } = await Location.requestBackgroundPermissionsAsync();
+
+      // if (foregroundStatus !== 'granted' || backgroundStatus !== 'granted') {
+      //   throw new Error('Permission to access location was denied');
+      // }
 
       const { coords } = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = coords;

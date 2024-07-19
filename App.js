@@ -53,34 +53,34 @@ export default function App() {
   const [notificationSent, setNotificationSent] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
-  const BACKGROUND_TASK_NAME = 'updateSunPositionTask';
+  // const BACKGROUND_TASK_NAME = 'updateSunPositionTask';
 
   // defines the background tasks to fetch current sun position, logs it or errors and returns success or failure
-  TaskManager.defineTask(BACKGROUND_TASK_NAME, async () => {
-    const { sunPosition, error } = useSunPositionCalculator();
-    if (error) {
-      console.log('Error fetching sun position: ', error);
-      return TaskManager.TaskResult.Failure;
-    }
-    console.log('sunPosition: ', sunPosition);
-    return TaskManager.TaskResult.Success;
-  });
+  // TaskManager.defineTask(BACKGROUND_TASK_NAME, async () => {
+  //   const { sunPosition, error } = useSunPositionCalculator();
+  //   if (error) {
+  //     console.log('Error fetching sun position: ', error);
+  //     return TaskManager.TaskResult.Failure;
+  //   }
+  //   console.log('sunPosition: ', sunPosition);
+  //   return TaskManager.TaskResult.Success;
+  // });
 
   // Register the background task
-  useEffect(() => {
-    registerBackgroundTask();
-  }, []);
+  // useEffect(() => {
+  //   registerBackgroundTask();
+  // }, []);
 
   // Function to register the background task every 10 min to updated sun position
-  const registerBackgroundTask = async () => {
-    if (!(await TaskManager.isTaskRegisteredAsync(BACKGROUND_TASK_NAME))) {
-      await TaskManager.registerTaskAsync(BACKGROUND_TASK_NAME, {
-        minimumInterval: 600, // 10 minutes
-        stopOnTerminate: false,
-        startOnBott: true,
-      });
-    }
-  };
+  // const registerBackgroundTask = async () => {
+  //   if (!(await TaskManager.isTaskRegisteredAsync(BACKGROUND_TASK_NAME))) {
+  //     await TaskManager.registerTaskAsync(BACKGROUND_TASK_NAME, {
+  //       minimumInterval: 600, // 10 minutes
+  //       stopOnTerminate: false,
+  //       startOnBott: true,
+  //     });
+  //   }
+  // };
 
   // Check if the user wants to see the overlay
   useOverlayStatus(setShowOverlay);
